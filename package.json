@@ -24,12 +24,6 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "import/no-anonymous-default-export": [
-      "error",
-      {
-        "allowAnonymousClass": true
-      }
-    ],
     "extends": [
       "react-app",
       "react-app/jest"
