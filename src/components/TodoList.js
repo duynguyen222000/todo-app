@@ -22,7 +22,55 @@ import {
   AiOutlineClose,
 } from "react-icons/ai";
 import { Table, Thead, Tr, Th } from "../styled-components/Table";
+import { connect } from "react-redux/es/exports";
+import { addTaskToDo, changeStatusTask } from "../redux/action/action";
+
 class TodoList extends Component {
+  state = {
+    value: "",
+  };
+  renderTaskToDo = () => {
+    return this.props.listToDo
+      .filter((task) => !task.status)
+      .map((task, index) => {
+        return (
+          <Tr key={index}>
+            <Th className="text-start">{task.taskName}</Th>
+            <Th className="text-right">
+              <Button>
+                <AiFillEdit />
+              </Button>
+              <Button
+                onClick={() => {
+                  this.props.dispatch(changeStatusTask(task.id));
+                }}
+              >
+                <AiOutlineCheck />
+              </Button>
+              <Button>
+                <AiOutlineClose />
+              </Button>
+            </Th>
+          </Tr>
+        );
+      });
+  };
+  renderTaskComplete = () => {
+    return this.props.listToDo
+      .filter((task) => task.status)
+      .map((task, index) => {
+        return (
+          <Tr key={index}>
+            <Th className="text-start">{task.taskName}</Th>
+            <Th className="text-right">
+              <Button>
+                <AiOutlineClose />
+              </Button>
+            </Th>
+          </Tr>
+        );
+      });
+  };
   render() {
     return (
       <ThemeProvider theme={ToDoListDarkTheme}>
@@ -38,11 +86,25 @@ class TodoList extends Component {
               span={"flex grow items-center"}
               label={"Task name"}
               className="ml-2 grow"
+              value={this.state.value}
               onChange={(e) => {
-                console.log(e.target.value);
+                let { value } = e.target;
+                this.setState({
+                  value,
+                });
               }}
             />
-            <Button className="ml-2">
+            <Button
+              onClick={() => {
+                let task = {
+                  id: Math.random(),
+                  taskName: this.state.value,
+                  status: false,
+                };
+                this.props.dispatch(addTaskToDo(task));
+              }}
+              className="ml-2"
+            >
               <AiOutlinePlus style={{ display: "inline-block" }} />
               Add task
             </Button>
@@ -53,62 +115,20 @@ class TodoList extends Component {
           </div>
           <Heading3>Task to do</Heading3>
           <Table>
-            <Thead>
-              <Tr>
-                <Th className="text-start">Task name</Th>
-                <Th className="text-right">
-                  <Button>
-                    <AiFillEdit />
-                  </Button>
-                  <Button>
-                    <AiOutlineCheck />
-                  </Button>
-                  <Button>
-                    <AiOutlineClose />
-                  </Button>
-                </Th>
-              </Tr>
-              <Tr>
-                <Th className="text-start">Task name</Th>
-                <Th className="text-right">
-                  <Button>
-                    <AiFillEdit />
-                  </Button>
-                  <Button>
-                    <AiOutlineCheck />
-                  </Button>
-                  <Button>
-                    <AiOutlineClose />
-                  </Button>
-                </Th>
-              </Tr>
-            </Thead>
+            <Thead>{this.renderTaskToDo()}</Thead>
           </Table>
           <Heading3 className="py-2">Task complete</Heading3>
           <Table>
-            <Thead>
-              <Tr>
-                <Th className="text-start">Task name</Th>
-                <Th className="text-right">
-                  <Button>
-                    <AiOutlineClose />
-                  </Button>
-                </Th>
-              </Tr>
-              <Tr>
-                <Th className="text-start">Task name</Th>
-                <Th className="text-right">
-                  <Button>
-                    <AiOutlineClose />
-                  </Button>
-                </Th>
-              </Tr>
-            </Thead>
+            <Thead>{this.renderTaskComplete()}</Thead>
           </Table>
         </Container>
       </ThemeProvider>
     );
   }
 }
-
-export default TodoList;
+const mapStateToProps = (state) => {
+  return {
+    listToDo: state.todoReducer.listToDo,
+  };
+};
+export default connect(mapStateToProps)(TodoList);
